@@ -1,0 +1,43 @@
+# Environment variables - KABHI PUSH MAT KARNA
+.env
+*.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.pyc
+vvenv/
+env/
+venv/
+.venv/
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# ChromaDB local data
+chroma_db/
+
+# Session files
+session_memory.json
+session_state.json
+
+# Google credentials
+google_credentials.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

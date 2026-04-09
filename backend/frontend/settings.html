@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumina AI — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: rgba(255,255,255,0.07);
+    --accent: #c8a97e;
+    --accent2: #8b6fff;
+    --text: #e8e6e0;
+    --muted: #6b6a72;
+    --radius: 14px;
+    --danger: #ff6b6b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(139,111,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    padding: 20px 32px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(12px);
+  }
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 0.03em;
+  }
+  .nav-links { display: flex; gap: 4px; margin-left: auto; }
+  .nav-link {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 14px;
+    border-radius: 9px;
+    text-decoration: none;
+    font-size: 0.83rem;
+    color: var(--muted);
+    transition: all 0.18s;
+    border: 1px solid transparent;
+  }
+  .nav-link:hover { background: var(--surface2); color: var(--text); border-color: var(--border); }
+  .nav-link.active { color: var(--accent); background: rgba(200,169,126,0.08); border-color: rgba(200,169,126,0.18); }
+
+  /* Page layout */
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .page-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .page-subtitle {
+    font-size: 0.87rem;
+    color: var(--muted);
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 32px;
+  }
+  .section-label {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 12px;
+    padding-left: 2px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  /* Setting row */
+  .setting-row {
+    display: flex;
+    align-items: center;
+    padding: 18px 22px;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-row:hover { background: rgba(255,255,255,0.02); }
+
+  .setting-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--muted);
+  }
+
+  .setting-info { flex: 1; }
+  .setting-name {
+    font-size: 0.88rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .setting-desc {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Toggle */
+  .toggle {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .toggle input:checked + .toggle-track {
+    background: rgba(200,169,126,0.25);
+    border-color: rgba(200,169,126,0.5);
+  }
+  .toggle-thumb {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 16px; height: 16px;
+    background: var(--muted);
+    border-radius: 50%;
+    transition: all 0.2s;
+    pointer-events: none;
+  }
+  .toggle input:checked ~ .toggle-thumb {
+    left: 21px;
+    background: var(--accent);
+  }
+
+  /* Select */
+  .setting-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.83rem;
+    padding: 7px 10px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.18s;
+    min-width: 130px;
+  }
+  .setting-select:focus { border-color: rgba(200,169,126,0.4); }
+
+  /* Range */
+  .range-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+  }
+  .range-wrapper input[type="range"] {
+    -webkit-appearance: none;
+    flex: 1;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  .range-wrapper input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px rgba(200,169,126,0.4);
+  }
+  .range-value {
+    font-size: 0.8rem;
+    color: var(--accent);
+    min-width: 28px;
+    text-align: right;
+    font-weight: 500;
+  }
+
+  /* Session info */
+  .session-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .session-id {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: monospace;
+    background: var(--surface2);
+    padding: 6px 12px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .copy-btn {
+    padding: 8px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .copy-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+
+  /* Danger zone */
+  .danger-card {
+    border-color: rgba(255,107,107,0.12);
+  }
+  .danger-row { border-bottom-color: rgba(255,107,107,0.08); }
+  .danger-btn {
+    padding: 8px 16px;
+    background: rgba(255,107,107,0.08);
+    border: 1px solid rgba(255,107,107,0.2);
+    border-radius: 8px;
+    color: var(--danger);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .danger-btn:hover {
+    background: rgba(255,107,107,0.15);
+    border-color: rgba(255,107,107,0.4);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 0.84rem;
+    color: var(--text);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(.4,0,.2,1);
+    pointer-events: none;
+    z-index: 999;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Lumina</a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chat
+    </a>
+    <a href="upload.html" class="nav-link">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Upload PDF
+    </a>
+    <a href="settings.html" class="nav-link active">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1 class="page-title">Settings</h1>
+  <p class="page-subtitle">Customize your Lumina experience. Changes are saved automatically.</p>
+
+  <!-- Appearance -->
+  <div class="section">
+    <div class="section-label">Appearance</div>
+    <div class="card">
+      <div class="setting-row">
+        <div class="setting-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Theme</div>
+          <div class="setting-desc">Choose your preferred color scheme</div>
+        </div>
+        <select class="setting-select" id="themeSelect" onchange="saveSetting('theme', this.value)">
+          <option value="dark">Dark</option>
+          <option value="light" disabled>Light (soon)</option>
+          <option value="system" disabled>System (soon)</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Font Size</div>
+          <div class="setting-desc">Adjust the chat message text size</div>
+        </div>
+        <div class="range-wrapper">
+          <input type="range" min="12" max="20" value="14" id="fontRange" oninput="updateRange(this)">
+          <span class="range-value" id="fontValue">14px</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat behaviour -->
+  <div class="section">
+    <div class="section-label">Chat Behaviour</div>
+    <div class="card">
+      <div class="setting-row">
+        <div class="setting-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Enter to Send</div>
+          <div class="setting-desc">Press Enter to send messages (Shift+Enter for new line)</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="enterToSend" checked onchange="saveSetting('enterToSend', this.checked)">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Streaming Responses</div>
+          <div class="setting-desc">Show AI responses as they are generated</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="streaming" checked onchange="saveSetting('streaming', this.checked)">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Response Length</div>
+          <div class="setting-desc">Preferred verbosity of AI answers</div>
+        </div>
+        <select class="setting-select" id="lengthSelect" onchange="saveSetting('length', this.value)">
+          <option value="concise">Concise</option>
+          <option value="balanced" selected>Balanced</option>
+          <option value="detailed">Detailed</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session -->
+  <div class="section">
+    <div class="section-label">Session</div>
+    <div class="session-box">
+      <div style="font-size:0.8rem; color:var(--muted); flex-shrink:0;">Session ID</div>
+      <div class="session-id" id="sessionDisplay">—</div>
+      <button class="copy-btn" onclick="copySession()">Copy</button>
+    </div>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="section">
+    <div class="section-label">Danger Zone</div>
+    <div class="card danger-card">
+      <div class="setting-row danger-row">
+        <div class="setting-icon" style="color: var(--danger); background: rgba(255,107,107,0.08);">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Clear Chat History</div>
+          <div class="setting-desc">Delete all conversations in this session. This cannot be undone.</div>
+        </div>
+        <button class="danger-btn" onclick="clearHistory()">Clear All</button>
+      </div>
+      <div class="setting-row" style="border-bottom:none;">
+        <div class="setting-icon" style="color: var(--danger); background: rgba(255,107,107,0.08);">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 2H3v16h5v4l4-4h5l4-4V2zM11 11V7M15 11V7"/></svg>
+        </div>
+        <div class="setting-info">
+          <div class="setting-name">Reset Session</div>
+          <div class="setting-desc">Generate a new session ID. This disconnects any uploaded PDFs.</div>
+        </div>
+        <button class="danger-btn" onclick="resetSession()">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const sessionId = localStorage.getItem("session_id") || '—';
+document.getElementById('sessionDisplay').textContent = sessionId;
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function saveSetting(key, value) {
+  localStorage.setItem('setting_' + key, value);
+  showToast('Setting saved');
+}
+
+function updateRange(el) {
+  document.getElementById('fontValue').textContent = el.value + 'px';
+  saveSetting('fontSize', el.value);
+}
+
+function copySession() {
+  navigator.clipboard.writeText(sessionId).then(() => showToast('Session ID copied'));
+}
+
+function clearHistory() {
+  if (confirm('Clear all chat history? This cannot be undone.')) {
+    showToast('Chat history cleared');
+  }
+}
+
+function resetSession() {
+  if (confirm('Reset your session? This will generate a new session ID.')) {
+    const newId = Date.now().toString();
+    localStorage.setItem('session_id', newId);
+    document.getElementById('sessionDisplay').textContent = newId;
+    showToast('Session reset successfully');
+  }
+}
+
+// Load saved settings
+document.getElementById('fontRange').value = localStorage.getItem('setting_fontSize') || 14;
+document.getElementById('fontValue').textContent = (localStorage.getItem('setting_fontSize') || 14) + 'px';
+</script>
+</body>
+</html>
