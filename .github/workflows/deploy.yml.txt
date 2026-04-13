@@ -1,0 +1,45 @@
+# Ye workflow tab trigger hoga jab main branch pe push hoga
+name: CI/CD Pipeline - Swaran Bot
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # Job 1: Code quality check
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # GitHub se code checkout karo
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Python setup karo
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # Dependencies install karo
+      - name: Install Dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      # Syntax errors check karo
+      - name: Check Python Syntax
+        run: |
+          cd backend
+          python -m py_compile app/main.py
+          python -m py_compile app/api/v1/api.py
+          python -m py_compile app/services/whatsapp_service.py
+          python -m py_compile app/services/whatsapp_flow.py
+          echo "✅ No syntax errors found!"
+
+      # Push successful hone ka confirmation
+      - name: Deploy Success Notification
+        run: |
+          echo "✅ Code pushed successfully!"
+          echo "👉 Ab laptop pe restart_bot.bat run karo"
+          echo "👉 Bot automatically latest code le lega"
