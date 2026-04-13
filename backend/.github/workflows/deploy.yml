@@ -1,0 +1,55 @@
+name: Swaran Bot - Auto Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Local Server
+    runs-on: self-hosted
+
+    steps:
+      - name: Pull latest code
+        shell: cmd
+        run: |
+          cd C:\Users\fresh\Desktop\whatsapp\backend
+          git pull origin main
+
+      - name: Install / update dependencies
+        shell: cmd
+        run: |
+          cd C:\Users\fresh\Desktop\whatsapp\backend
+          call env\Scripts\activate.bat
+          pip install -r requirements.txt --quiet
+
+      - name: Stop old server
+        shell: cmd
+        run: |
+          taskkill /F /FI "WINDOWTITLE eq Backend Server*" >nul 2>&1
+          taskkill /F /FI "WINDOWTITLE eq Swaran*" >nul 2>&1
+          timeout /t 3 /nobreak >nul
+          echo Old server stopped
+
+      - name: Start new server
+        shell: cmd
+        run: |
+          cd C:\Users\fresh\Desktop\whatsapp\backend
+          start "Backend Server" cmd /k "cd C:\Users\fresh\Desktop\whatsapp\backend && call env\Scripts\activate.bat && python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+          timeout /t 5 /nobreak >nul
+          echo New server started on port 8000
+
+      - name: Health check
+        shell: cmd
+        run: |
+          timeout /t 5 /nobreak >nul
+          curl -f http://localhost:8000/ || echo "Health check failed - check server logs"
+
+      - name: Done
+        shell: cmd
+        run: |
+          echo ========================================
+          echo   Swaran Bot Deployed Successfully!
+          echo   Push se deploy tak complete!
+          echo ========================================
