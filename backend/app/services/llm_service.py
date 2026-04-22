@@ -21,11 +21,18 @@ def _base_options(num_predict: int = None, ctx: int = 2048) -> dict:
 
 # ── Blocking call ─────────────────────────────────────────────────────────────
 
-def call_llama(prompt: str, temperature: float = 0.2, num_predict: int = None) -> str:
+def call_llama(
+    prompt: str,
+    temperature: float = 0.2,
+    num_predict: int = None,
+    timeout_s: int | None = None,
+) -> str:
     """
     Blocking LLM call — optimized for RAG (low temperature).
     """
     predict = num_predict or CFG["max_tokens"]
+
+    llm_timeout = timeout_s or settings.LLM_TIMEOUT_SECONDS
 
     try:
         response = requests.post(
@@ -43,13 +50,13 @@ def call_llama(prompt: str, temperature: float = 0.2, num_predict: int = None) -
                     "repeat_penalty": 1.1,
                 },
             },
-            timeout=300,
+            timeout=llm_timeout,
         )
         response.raise_for_status()
         return response.json().get("response", "").strip()
 
     except requests.exceptions.Timeout:
-        print("[call_llama] Timeout after 300s")
+        print(f"[call_llama] Timeout after {llm_timeout}s")
         return ""
 
     except Exception as e:
@@ -64,6 +71,8 @@ def stream_llama(prompt: str):
     Streams tokens live from Ollama.
     ✅ FIXED: num_predict 80→200, num_ctx 1024→4096 for quality responses.
     """
+    llm_timeout = settings.LLM_TIMEOUT_SECONDS
+
     try:
         response = requests.post(
             settings.OLLAMA_URL,
@@ -81,7 +90,7 @@ def stream_llama(prompt: str):
                 },
             },
             stream=True,
-            timeout=300,
+            timeout=llm_timeout,
         )
 
         response.raise_for_status()
@@ -144,24 +153,52 @@ def format_rag_answer(query: str, docs: list) -> str:
 
 # ── Prompt builder ────────────────────────────────────────────────────────────
 
+# def build_prompt(query: str, context_docs: list[str]) -> str:
+#     context = "\n\n".join(context_docs)
+
+#     return f"""
+# You are a strict AI assistant.
+
+# Rules:
+# - Use ONLY the provided context
+# - Do NOT use your own knowledge
+# - If answer is not in context, say: "Not found"
+# - Give SHORT answer (max 3-4 lines)
+# - No extra explanation
+
+# Context:
+# {context}
+
+# Question:
+# {query}
+
+# Answer:
+# """
+
+
 def build_prompt(query: str, context_docs: list[str]) -> str:
     context = "\n\n".join(context_docs)
 
     return f"""
-You are a strict AI assistant.
+You are a WhatsApp chatbot assistant.
 
-Rules:
-- Use ONLY the provided context
-- Do NOT use your own knowledge
-- If answer is not in context, say: "Not found"
-- Give SHORT answer (max 3-4 lines)
-- No extra explanation
+STRICT OUTPUT RULES:
+- Respond ONLY with the final answer.
+- Do NOT include any meta text.
+- Do NOT include phrases like:
+  "Here's a 2-sentence answer"
+  "Type menu to explore other services"
+- Do NOT add instructions, menus, or extra lines.
+- Keep the answer clean and natural.
+- Maximum 2 sentences only.
+- No prefix, no suffix, no explanation.
+- If answer is not found in context, reply exactly: Not found
 
-Context:
+CONTEXT:
 {context}
 
-Question:
+QUESTION:
 {query}
 
-Answer:
+FINAL ANSWER:
 """

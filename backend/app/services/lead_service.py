@@ -83,12 +83,15 @@ import uuid
 from app.core.config import settings
 
 supabase = None
-if settings.SUPABASE_URL and settings.SUPABASE_KEY:
-    from supabase import create_client
-    supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
-    print("Supabase client initialized.")
+if settings.SUPABASE_URL and settings.SUPABASE_KEY and settings.SUPABASE_KEY != "your-supabase-anon-key":
+    try:
+        from supabase import create_client
+        supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+        print("Supabase client initialized.")
+    except Exception as e:
+        print(f"WARNING: Supabase init failed: {e} — leads will be logged only")
 else:
-    print("WARNING: SUPABASE_URL/KEY not set.")
+    print("WARNING: Supabase not configured — leads will be logged only")
 
 BUYING_SIGNALS = {
     "pricing":     ["cost", "price", "₹", "lakh", "budget", "how much", "roi"],

@@ -5,7 +5,7 @@ BOT_CONFIG = {
     # ── Company identity ──────────────────────────────────────────────────────
     "company_name":   "Swaran Soft",
     "website":        "https://swaransoft.com",
-    "email":          "info@swaransoft.com",
+    "email":          "yogesh@gignaati.com",
     "phone_india":    "+91 9220-313-650",
     "phone_uae":      "+971-50-9292-650",
     "tagline":        "India's AI-first enterprise implementation partner",

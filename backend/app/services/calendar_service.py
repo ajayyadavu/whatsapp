@@ -24,7 +24,7 @@ CALENDAR_ID = os.getenv("GOOGLE_CALENDAR_ID", "primary")
 # Working hours: 9 AM – 6 PM IST (UTC+5:30)
 WORK_START_HOUR = 9
 WORK_END_HOUR   = 18
-SLOT_MINUTES    = 45   # meeting duration
+SLOT_MINUTES    = 15   # ← 15-minute discovery call
 
 
 def _ist_offset() -> datetime.timezone:
@@ -50,7 +50,7 @@ def find_next_free_slot() -> Optional[datetime.datetime]:
                 candidate += datetime.timedelta(hours=1)
                 continue
             if not (WORK_START_HOUR <= candidate.hour < WORK_END_HOUR):
-                # Jump to next day 9 AM if outside work hours
+                # Jump to next working day 9 AM if outside work hours
                 candidate = (candidate + datetime.timedelta(days=1)).replace(
                     hour=WORK_START_HOUR, minute=0, second=0, microsecond=0
                 )
@@ -95,11 +95,13 @@ def create_meet_event(
         calendar_service = _get_calendar_service()
         slot_end = slot + datetime.timedelta(minutes=SLOT_MINUTES)
 
+        host_email = os.getenv("HOST_EMAIL", "yogesh@gignaati.com")
+
         event = {
-            "summary": f"Swaran Soft – {service_name} with {name}",
+            "summary": f"Swaran Soft – {service_name} Discovery Call with {name}",
             "description": (
-                f"Discovery call booked via WhatsApp.\n"
-                f"Service: {service_name}\n"
+                f"15-minute discovery call booked via Swaran AI.\n"
+                f"Service of interest: {service_name}\n"
                 f"Contact: {name} | {email}"
             ),
             "start": {
@@ -112,7 +114,7 @@ def create_meet_event(
             },
             "attendees": [
                 {"email": email},
-                {"email": os.getenv("HOST_EMAIL", "info@swaransoft.com")},
+                {"email": host_email},
             ],
             "conferenceData": {
                 "createRequest": {

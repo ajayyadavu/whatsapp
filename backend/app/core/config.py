@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     # ── LLM Model (change here to switch models) ──────────────
     LLM_MODEL: str = "llama3"
+    LLM_TIMEOUT_SECONDS: int = 300
 
     # ── PostgreSQL ────────────────────────────────────────────
     DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/workbench"

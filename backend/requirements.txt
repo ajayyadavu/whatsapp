@@ -4,7 +4,7 @@ pydantic==2.12.5
 pydantic-settings==2.6.1
 python-dotenv==1.2.2
 SQLAlchemy==2.0.48
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 passlib==1.7.4
 python-jose==3.3.0
 python-multipart==0.0.7
@@ -23,3 +23,5 @@ google-auth-oauthlib==1.2.0
 google-api-python-client==2.131.0
 annotated-types==0.7.0
 typing_extensions==4.15.0
+
+
