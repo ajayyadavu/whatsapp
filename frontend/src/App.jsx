@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import LogsPage from './pages/LogsPage';
 import ProtectedRoute from './components/Common/ProtectedRoute';
+import FloatingChatWidget from './components/Chatbot/FloatingChatWidget';
 import './App.css';
 
 // Component to handle initial auth check
@@ -75,6 +76,9 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      {/* Floating Chat Widget — visible on all pages */}
+      <FloatingChatWidget />
     </AuthProvider>
   );
 }

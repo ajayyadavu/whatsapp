@@ -97,6 +97,23 @@ export const chatAPI = {
 
     return response;
   },
+
+  // ── WhatsApp-identical flow for web chat (no auth required) ────────────────
+  flowChat: async (message, sessionId, signal) => {
+    const response = await fetch(`${API_BASE_URL}/flow-chat/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, session_id: sessionId }),
+      signal,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    return response;
+  },
 };
 
 // ── Lead API ──────────────────────────────────────────────────────────────────

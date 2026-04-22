@@ -16,20 +16,20 @@ import LeadModal from '../Common/LeadModal';
 import './Chatbot.css';
 
 const Chatbot = () => {
-  const [messages, setMessages]               = useState([]);
+  const [messages, setMessages]                 = useState([]);
   const [currentSessionId, setCurrentSessionId] = useState(null);
-  const [isLoading, setIsLoading]             = useState(false);
-  const [showLeadModal, setShowLeadModal]     = useState(false);
-  const [detectedSignals, setDetectedSignals] = useState([]);
-  const [leadFormShown, setLeadFormShown]     = useState(false);
-  const [messageCount, setMessageCount]       = useState(0);
-  const [isInitialLoad, setIsInitialLoad]     = useState(true);
-  const [meetPanelOpen, setMeetPanelOpen]     = useState(false);
-  const [meetPayload, setMeetPayload]         = useState(null);
+  const [isLoading, setIsLoading]               = useState(false);
+  const [showLeadModal, setShowLeadModal]       = useState(false);
+  const [detectedSignals, setDetectedSignals]   = useState([]);
+  const [leadFormShown, setLeadFormShown]       = useState(false);
+  const [messageCount, setMessageCount]         = useState(0);
+  const [isInitialLoad, setIsInitialLoad]       = useState(true);
+  const [meetPanelOpen, setMeetPanelOpen]       = useState(false);
+  const [meetPayload, setMeetPayload]           = useState(null);
 
   const abortControllerRef = useRef(null);
   const chatContainerRef   = useRef(null);
-  const sessionId          = getSessionId();
+  const sessionId          = getSessionId();   // stable browser session UUID
   const utmParams          = getUTMParams();
 
   // ── Restore session on mount ──────────────────────────────────────────────
@@ -53,12 +53,12 @@ const Chatbot = () => {
     setIsInitialLoad(false);
   }, []);
 
-  // ── Persist session on message change ────────────────────────────────────
+  // ── Persist session on message change ─────────────────────────────────────
   useEffect(() => {
     if (!isInitialLoad && messages.length > 0 && currentSessionId) {
       const firstUser = messages.find(m => m.role === 'user');
-      const title   = firstUser?.text?.slice(0, 30) || 'Chat Session';
-      const preview = messages[messages.length - 1]?.text?.slice(0, 50) || '';
+      const title     = firstUser?.text?.slice(0, 30) || 'Chat Session';
+      const preview   = messages[messages.length - 1]?.text?.slice(0, 50) || '';
       updateChatSession(currentSessionId, { messages, title, preview });
       setActiveSession({ id: currentSessionId, messages, title, preview });
     }
@@ -74,16 +74,12 @@ const Chatbot = () => {
 
   useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
 
-  // ── Lead form logic (auto-popup disabled) ────────────────────────────────
-  const checkLeadForm = useCallback((_signals, _count) => {
-    // Book a Demo auto-popup disabled
-  }, []);
-
+  // ── Lead form (auto-popup disabled) ──────────────────────────────────────
   const handleLeadSubmit = async (leadData) => {
     try {
       const response = await leadAPI.submit({
         ...leadData,
-        session_id: sessionId,
+        session_id:     sessionId,
         buying_signals: detectedSignals,
         ...utmParams,
       });
@@ -120,7 +116,7 @@ const Chatbot = () => {
     clearActiveSession();
   };
 
-  // ── Core sendMessage ──────────────────────────────────────────────────────
+  // ── Core sendMessage — uses /flow-chat/ (WhatsApp-identical flow) ─────────
   const sendMessage = async (text) => {
     if (!text.trim() || isLoading) return;
 
@@ -155,20 +151,20 @@ const Chatbot = () => {
     ]);
 
     try {
-      const response = await chatAPI.sendMessage(text, sessionId, controller.signal);
+      // ── Call /flow-chat/ — no auth token needed ───────────────────────────
+      const response = await chatAPI.flowChat(text, sessionId, controller.signal);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-      const reader   = response.body.getReader();
-      const decoder  = new TextDecoder('utf-8');
-      let fullText   = '';
+      const reader  = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let fullText  = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-
-        fullText += chunk;
+        fullText   += chunk;
 
         setMessages(prev =>
           prev.map(msg =>
@@ -180,7 +176,7 @@ const Chatbot = () => {
         scrollToBottom();
       }
 
-      // ── Finalise ──────────────────────────────────────────────────────
+      // ── Finalise ──────────────────────────────────────────────────────────
       const finalText = fullText.trim() || 'No response received.';
       setMessages(prev =>
         prev.map(msg =>
@@ -189,8 +185,6 @@ const Chatbot = () => {
             : msg
         )
       );
-
-      // checkLeadForm disabled
 
     } catch (error) {
       if (error.name !== 'AbortError') {
@@ -236,7 +230,13 @@ const Chatbot = () => {
       {/* ── Main chat pane ──────────────────────────────────────────────── */}
       <div className="chatbot">
         <div className="chatbot-header">
-          <h2>AI Assistant</h2>
+          <div className="chatbot-header-left">
+            <div className="bot-avatar-header">🤖</div>
+            <div>
+              <h2>Swaran AI</h2>
+              <span className="bot-status">● Online</span>
+            </div>
+          </div>
           <div className="chatbot-header-actions">
             <a
               href="https://meet.google.com/new"
@@ -258,10 +258,13 @@ const Chatbot = () => {
         <div className="chat-messages" ref={chatContainerRef}>
           {messages.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon" />
-              <h3>How can I help you today?</h3>
-              <p>Ask me anything — powered by AI and ready to assist.</p>
+              <div className="empty-icon">🤖</div>
+              <h3>Hi! I'm Swaran AI 👋</h3>
+              <p>Your intelligent assistant for everything SwaranSoft. Start by saying hello!</p>
               <div className="suggestions">
+                <button onClick={() => sendMessage('Hi')}>
+                  👋 Say Hello
+                </button>
                 <button onClick={() => sendMessage('What services does Swaran Soft offer?')}>
                   Our Services
                 </button>
@@ -281,14 +284,12 @@ const Chatbot = () => {
         <ChatInput onSend={sendMessage} disabled={isLoading} />
       </div>
 
-      {/* ── Meet panel (kept in code but never opened automatically) */}
+      {/* kept in code but never opened automatically */}
       <MeetPanel
         isOpen={meetPanelOpen}
         onClose={() => setMeetPanelOpen(false)}
         payload={meetPayload}
       />
-
-      {/* ── Lead modal (kept in code but never opened automatically) */}
       <LeadModal
         isOpen={showLeadModal}
         onClose={() => setShowLeadModal(false)}

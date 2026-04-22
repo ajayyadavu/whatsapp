@@ -1,0 +1,255 @@
+/* ── Root container — fixed bottom-right corner ───────────────────────────── */
+.fcw-root {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.fcw-root > * {
+  pointer-events: auto;
+}
+
+/* ── Panel ─────────────────────────────────────────────────────────────────── */
+.fcw-panel {
+  width: 360px;
+  height: 520px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  animation: fcw-slide-up 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.fcw-panel.fcw-minimized {
+  height: auto;
+  animation: none;
+}
+
+@keyframes fcw-slide-up {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+.fcw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+  flex-shrink: 0;
+}
+
+.fcw-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fcw-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.fcw-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.fcw-status {
+  font-size: 11px;
+  color: #86efac;
+  font-weight: 500;
+}
+
+.fcw-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fcw-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.fcw-action-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.fcw-close-btn:hover {
+  background: rgba(239, 68, 68, 0.5);
+}
+
+/* ── Messages area ──────────────────────────────────────────────────────────── */
+.fcw-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f0f4f8;
+  scroll-behavior: smooth;
+}
+
+.fcw-messages::-webkit-scrollbar { width: 4px; }
+.fcw-messages::-webkit-scrollbar-track { background: transparent; }
+.fcw-messages::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+/* ── Empty / welcome state ──────────────────────────────────────────────────── */
+.fcw-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  gap: 8px;
+  padding: 24px 16px;
+}
+
+.fcw-empty-icon {
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.fcw-empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e3a5f;
+  margin: 0;
+}
+
+.fcw-empty-sub {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.fcw-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.fcw-suggestions button {
+  padding: 7px 14px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.fcw-suggestions button:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.05);
+}
+
+/* ── FAB Toggle Button ──────────────────────────────────────────────────────── */
+.fcw-fab {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+  border: none;
+  cursor: pointer;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 6px 20px rgba(37, 99, 235, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+.fcw-fab:hover {
+  transform: scale(1.08);
+  box-shadow:
+    0 10px 28px rgba(37, 99, 235, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.fcw-fab:active {
+  transform: scale(0.96);
+}
+
+.fcw-fab.fcw-fab-open {
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  box-shadow:
+    0 6px 20px rgba(71, 85, 105, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Unread dot ─────────────────────────────────────────────────────────────── */
+.fcw-unread-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 12px;
+  height: 12px;
+  background: #ef4444;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  animation: fcw-pulse 2s infinite;
+}
+
+@keyframes fcw-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.2); opacity: 0.8; }
+}
+
+/* ── Responsive — smaller screens ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .fcw-root {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .fcw-panel {
+    width: calc(100vw - 32px);
+    height: 480px;
+    border-radius: 16px;
+  }
+}
